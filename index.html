@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>приём</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0b0c;
+    --surface: #17171a;
+    --surface-done: #1c1916;
+    --border: #2a2a2e;
+    --border-done: #3d3424;
+    --text: #efeeea;
+    --text-muted: #8a8a90;
+    --accent: #c9a876;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+    min-height: 100vh;
+  }
+
+  body {
+    display: flex;
+    justify-content: center;
+    padding: 32px 16px 64px;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  header { margin-bottom: 28px; }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 6px;
+    letter-spacing: -0.01em;
+  }
+
+  .meta {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .counter { color: var(--accent); font-weight: 700; }
+
+  section { margin-bottom: 24px; }
+
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    padding-left: 2px;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .row:active { transform: scale(0.99); }
+
+  .row.done { background: var(--surface-done); border-color: var(--border-done); }
+
+  .bracket {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    width: 34px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .row.done .bracket { color: var(--accent); }
+
+  .label { flex: 1; font-size: 14px; line-height: 1.4; }
+  .label .name { color: var(--text); }
+
+  .row.done .label .name {
+    color: var(--text-muted);
+    text-decoration: line-through;
+    text-decoration-color: var(--border-done);
+  }
+
+  .label .dose {
+    display: block;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  footer {
+    margin-top: 36px;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="eyebrow">приём добавок</div>
+      <h1 id="dateLine">—</h1>
+      <div class="meta">
+        <span>сбрасывается в 00:00</span>
+        <span class="counter" id="counter">0/5</span>
+      </div>
+    </header>
+
+    <section>
+      <div class="section-label">утро</div>
+      <div class="row" data-id="arginine">
+        <span class="bracket">[ ]</span>
+        <span class="label">
+          <span class="name">Arginine 800 Plus</span>
+          <span class="dose">1 таб · после еды</span>
+        </span>
+      </div>
+      <div class="row" data-id="zinc">
+        <span class="bracket">[ ]</span>
+        <span class="label">
+          <span class="name">Zinc Plus</span>
+          <span class="dose">1 капс · с едой</span>
+        </span>
+      </div>
+      <div class="row" data-id="ginkgo-am">
+        <span class="bracket">[ ]</span>
+        <span class="label">
+          <span class="name">Ginkgo Biloba</span>
+          <span class="dose">1 доза · 1-я за день</span>
+        </span>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-label">вечер</div>
+      <div class="row" data-id="ginkgo-pm">
+        <span class="bracket">[ ]</span>
+        <span class="label">
+          <span class="name">Ginkgo Biloba</span>
+          <span class="dose">1 доза · 2-я за день</span>
+        </span>
+      </div>
+      <div class="row" data-id="maggenin">
+        <span class="bracket">[ ]</span>
+        <span class="label">
+          <span class="name">MAG GENIN</span>
+          <span class="dose">2 капс · за 30-60 мин до сна</span>
+        </span>
+      </div>
+    </section>
+
+    <footer>
+      <div>данные хранятся локально в этом браузере</div>
+    </footer>
+  </div>
+
+<script>
+  const STORAGE_KEY = 'pill-tracker-state';
+  const ITEM_IDS = ['arginine', 'zinc', 'ginkgo-am', 'ginkgo-pm', 'maggenin'];
+  const RU_MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  const RU_DAYS = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+
+  function todayKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  function formatDateLine() {
+    const d = new Date();
+    return `${RU_DAYS[d.getDay()]}, ${d.getDate()} ${RU_MONTHS[d.getMonth()]}`;
+  }
+
+  let state = {};
+
+  function loadState() {
+    let stored = null;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) stored = JSON.parse(raw);
+    } catch (e) {
+      stored = null;
+    }
+
+    const today = todayKey();
+
+    if (!stored || stored.date !== today) {
+      state = { date: today, checks: {} };
+      ITEM_IDS.forEach(id => state.checks[id] = false);
+      saveState();
+    } else {
+      state = stored;
+      ITEM_IDS.forEach(id => {
+        if (!(id in state.checks)) state.checks[id] = false;
+      });
+    }
+  }
+
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      console.error('не удалось сохранить состояние', e);
+    }
+  }
+
+  function render() {
+    document.getElementById('dateLine').textContent = formatDateLine();
+    let doneCount = 0;
+    ITEM_IDS.forEach(id => {
+      const row = document.querySelector(`.row[data-id="${id}"]`);
+      const bracket = row.querySelector('.bracket');
+      const isDone = !!state.checks[id];
+      row.classList.toggle('done', isDone);
+      bracket.textContent = isDone ? '[×]' : '[ ]';
+      if (isDone) doneCount++;
+    });
+    document.getElementById('counter').textContent = `${doneCount}/${ITEM_IDS.length}`;
+  }
+
+  function toggle(id) {
+    state.checks[id] = !state.checks[id];
+    render();
+    saveState();
+  }
+
+  document.querySelectorAll('.row').forEach(row => {
+    row.addEventListener('click', () => toggle(row.dataset.id));
+  });
+
+  setInterval(() => {
+    if (state.date !== todayKey()) {
+      loadState();
+      render();
+    }
+  }, 60000);
+
+  loadState();
+  render();
+</script>
+</body>
+</html>
